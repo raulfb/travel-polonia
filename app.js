@@ -1,8 +1,10 @@
 // ─── STATE ────────────────────────────────────────────────────────────────
-let map, markers = {}, activeFilter = "all", activeCard = null;
+let map;
+let placeMarkers = {}, restMarkers = {};
+let activeFilter = "all", activeRestFilter = "all", activeDictCat = "all";
+let activeCard = null, activeRestCard = null;
 let sheetState = "state-peek";
 let activeSection = "map";
-let activeDictCat = "all";
 
 const STATES = ["state-peek", "state-list", "state-full"];
 
@@ -10,27 +12,33 @@ const STATES = ["state-peek", "state-list", "state-full"];
 function switchSection(section) {
   activeSection = section;
 
-  // Nav buttons
-  document.querySelectorAll(".nav-btn").forEach(b =>
-    b.classList.toggle("active", b.dataset.section === section));
-  document.querySelectorAll(".desktop-tab").forEach(b =>
+  document.querySelectorAll(".nav-btn, .desktop-tab").forEach(b =>
     b.classList.toggle("active", b.dataset.section === section));
 
-  // Panel tops
-  document.getElementById("top-map").classList.toggle("hidden", section !== "map");
+  document.getElementById("top-map").classList.toggle("hidden",  section !== "map");
+  document.getElementById("top-rest").classList.toggle("hidden", section !== "rest");
   document.getElementById("top-dict").classList.toggle("hidden", section !== "dict");
 
-  // Panel body sections
-  document.getElementById("section-map").classList.toggle("hidden", section !== "map");
+  document.getElementById("section-map").classList.toggle("hidden",  section !== "map");
+  document.getElementById("section-rest").classList.toggle("hidden", section !== "rest");
   document.getElementById("section-dict").classList.toggle("hidden", section !== "dict");
 
-  if (section === "dict") {
-    if (window.innerWidth < 768) setSheetState("state-full");
-    document.getElementById("panel-top").style.cursor = "default";
-  } else {
-    document.getElementById("panel-top").style.cursor = "";
-    if (window.innerWidth < 768) setSheetState("state-peek");
+  // Map markers visibility
+  Object.values(placeMarkers).forEach(m =>
+    section === "map"  ? m.addTo(map) : map.removeLayer(m));
+  Object.values(restMarkers).forEach(m =>
+    section === "rest" ? m.addTo(map) : map.removeLayer(m));
+
+  const dictOrRest = section === "dict" || section === "rest";
+  document.getElementById("panel-top").style.cursor = dictOrRest ? "default" : "";
+
+  if (window.innerWidth < 768) {
+    setSheetState(dictOrRest ? "state-full" : "state-peek");
   }
+
+  // Fly map to appropriate view
+  if (section === "map")  map.flyTo([52.0, 19.5], 6, { duration: 1 });
+  if (section === "rest") map.flyTo([52.0, 19.5], 6, { duration: 1 });
 }
 
 // ─── BOTTOM SHEET ─────────────────────────────────────────────────────────
@@ -50,21 +58,16 @@ function setupDrag() {
   let startY = 0, currentY = 0, dragging = false;
 
   function getCurrentTranslatePx() {
-    const mat = new DOMMatrix(window.getComputedStyle(panel).transform);
-    return mat.m42;
+    return new DOMMatrix(window.getComputedStyle(panel).transform).m42;
   }
 
   function snapPositions() {
     const h = panel.offsetHeight;
-    return {
-      "state-peek": h - 116,
-      "state-list": h * 0.42,
-      "state-full": 0,
-    };
+    return { "state-peek": h - 116, "state-list": h * 0.42, "state-full": 0 };
   }
 
   function onStart(y) {
-    if (activeSection === "dict") return;
+    if (activeSection === "dict" || activeSection === "rest") return;
     startY = y;
     currentY = getCurrentTranslatePx();
     dragging = true;
@@ -75,24 +78,19 @@ function setupDrag() {
     if (!dragging) return;
     const body = document.getElementById("panel-body");
     if (sheetState === "state-full" && body.scrollTop > 0) {
-      dragging = false;
-      panel.classList.remove("dragging");
-      return;
+      dragging = false; panel.classList.remove("dragging"); return;
     }
     const delta = y - startY;
     const h = panel.offsetHeight;
     const newY = Math.max(0, Math.min(h - 116, currentY + delta));
     panel.style.transform = `translateY(${newY}px)`;
-    currentY = newY;
-    startY = y;
+    currentY = newY; startY = y;
   }
 
   function onEnd() {
     if (!dragging) return;
-    dragging = false;
-    panel.classList.remove("dragging");
+    dragging = false; panel.classList.remove("dragging");
     panel.style.transform = "";
-
     const snaps = snapPositions();
     const nearest = Object.entries(snaps)
       .map(([s, px]) => ({ s, diff: Math.abs(currentY - px) }))
@@ -104,57 +102,79 @@ function setupDrag() {
   document.addEventListener("touchmove",  e => { if (dragging) onMove(e.touches[0].clientY); }, { passive: true });
   document.addEventListener("touchend",   onEnd, { passive: true });
 
-  // Tap panel-top to advance state
   panelTop.addEventListener("click", () => {
-    if (activeSection === "dict" || window.innerWidth >= 768) return;
+    if (activeSection !== "map" || window.innerWidth >= 768) return;
     if (sheetState === "state-peek") setSheetState("state-list");
     else if (sheetState === "state-list") setSheetState("state-full");
   });
 }
 
-// ─── MAP ──────────────────────────────────────────────────────────────────
+// ─── MAP INIT ─────────────────────────────────────────────────────────────
 function initMap() {
   map = L.map("map", { zoomControl: false }).setView([52.0, 19.5], 6);
-
   L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-    attribution: '&copy; <a href="https://carto.com/">CARTO</a>',
-    maxZoom: 19,
+    attribution: '&copy; <a href="https://carto.com/">CARTO</a>', maxZoom: 19,
   }).addTo(map);
-
   L.control.zoom({ position: "topright" }).addTo(map);
 }
 
-function addMarker(place) {
-  const color = CITY_COLORS[place.city];
+// ─── PLACE MARKERS ────────────────────────────────────────────────────────
+function addPlaceMarker(place) {
   const icon = L.divIcon({
     className: "",
-    html: `<div class="custom-marker" style="background:${color}"><span>${place.icon}</span></div>`,
+    html: `<div class="custom-marker" style="background:${CITY_COLORS[place.city]}"><span>${place.icon}</span></div>`,
     iconSize: [36, 36], iconAnchor: [18, 36], popupAnchor: [0, -36],
   });
-
   const marker = L.marker([place.lat, place.lng], { icon })
     .addTo(map)
-    .bindPopup(buildPopupHTML(place), { maxWidth: 240 });
-
+    .bindPopup(buildPlacePopup(place), { maxWidth: 240 });
   marker.on("click", () => {
     highlightCard(place.id);
     if (window.innerWidth < 768) setSheetState("state-list");
   });
-
-  markers[place.id] = marker;
+  placeMarkers[place.id] = marker;
 }
 
-function buildPopupHTML(place) {
+function buildPlacePopup(place) {
   return `
     <div class="popup-city">${place.cityLabel}</div>
     <div class="popup-name">${place.name}</div>
     <div class="popup-type">${place.type}</div>
-    <button class="popup-btn" onclick="showDetail('${place.id}')">Ver detalle →</button>
+    <button class="popup-btn" onclick="showPlaceDetail('${place.id}')">Ver detalle →</button>
+  `;
+}
+
+// ─── RESTAURANT MARKERS ───────────────────────────────────────────────────
+function addRestMarker(rest) {
+  const icon = L.divIcon({
+    className: "",
+    html: `<div class="custom-marker" style="background:#e67e22"><span>${rest.icon}</span></div>`,
+    iconSize: [36, 36], iconAnchor: [18, 36], popupAnchor: [0, -36],
+  });
+  const marker = L.marker([rest.lat, rest.lng], { icon })
+    .bindPopup(buildRestPopup(rest), { maxWidth: 240 });
+  // hidden initially (map section active by default)
+  marker.on("click", () => {
+    highlightRestCard(rest.id);
+    if (window.innerWidth < 768) setSheetState("state-list");
+  });
+  restMarkers[rest.id] = marker;
+}
+
+function buildRestPopup(rest) {
+  return `
+    <div class="popup-city">${rest.cityLabel}</div>
+    <div class="popup-name">${rest.icon} ${rest.name}</div>
+    <div class="popup-type">${rest.type}</div>
+    <div style="margin-top:4px">
+      <span style="font-size:0.72rem;padding:2px 8px;border-radius:10px;background:rgba(230,126,34,0.2);color:#e67e22;font-family:Arial">${rest.price}</span>
+    </div>
+    <button class="popup-btn" style="background:#e67e22" onclick="showRestDetail('${rest.id}')">Ver detalle →</button>
   `;
 }
 
 // ─── PLACE LIST ───────────────────────────────────────────────────────────
-function renderList(places) {
+function renderPlaceList(places) {
   const list = document.getElementById("place-list");
   list.innerHTML = "";
   document.getElementById("place-count").textContent =
@@ -166,18 +186,15 @@ function renderList(places) {
 
   CITY_ORDER.forEach(city => {
     const group = grouped[city];
-    if (!group || !group.length) return;
-
+    if (!group?.length) return;
     const title = document.createElement("div");
     title.className = "city-group-title";
     title.textContent = group[0].cityLabel.split(" — ")[0].split(" / ")[0];
     title.style.color = CITY_COLORS[city];
     list.appendChild(title);
-
     group.forEach(place => {
       const card = document.createElement("div");
-      card.className = "place-card";
-      card.id = `card-${place.id}`;
+      card.className = "place-card"; card.id = `card-${place.id}`;
       card.innerHTML = `
         <div class="place-icon">${place.icon}</div>
         <div class="place-info">
@@ -187,7 +204,7 @@ function renderList(places) {
         </div>
         <div class="place-chevron">›</div>
       `;
-      card.addEventListener("click", () => { flyToMarker(place); showDetail(place.id); });
+      card.addEventListener("click", () => { flyTo(place.lat, place.lng, 14); showPlaceDetail(place.id); });
       list.appendChild(card);
     });
   });
@@ -199,18 +216,10 @@ function highlightCard(id) {
   if (card) { card.classList.add("active"); card.scrollIntoView({ behavior: "smooth", block: "nearest" }); }
 }
 
-function flyToMarker(place) {
-  const zoom = window.innerWidth < 768 ? 14 : 15;
-  map.flyTo([place.lat, place.lng], zoom, { duration: 1.1 });
-  setTimeout(() => markers[place.id]?.openPopup(), 1200);
-}
-
-function showDetail(id) {
+function showPlaceDetail(id) {
   const place = PLACES.find(p => p.id === id);
   if (!place) return;
-
-  if (activeCard !== id) { flyToMarker(place); highlightCard(id); activeCard = id; }
-
+  if (activeCard !== id) { flyTo(place.lat, place.lng, 14); highlightCard(id); activeCard = id; }
   if (activeSection !== "map") switchSection("map");
   if (window.innerWidth < 768) setSheetState("state-full");
 
@@ -218,25 +227,12 @@ function showDetail(id) {
   document.getElementById("place-detail").classList.remove("hidden");
   document.getElementById("panel-body").scrollTop = 0;
 
-  const practical = place.practical || {};
-  const practicalKeys = {
-    entrada: "Entrada", horario: "Horario", precio: "Precio",
-    tiempo: "Tiempo", transporte: "Transporte", tip: "Consejo", aviso: "Aviso",
-  };
-
-  const practicalHTML = Object.entries(practicalKeys)
-    .filter(([k]) => practical[k])
-    .map(([k, label]) => `
-      <div class="practical-item">
-        <span class="p-label">${label}</span>
-        <span class="p-value">${practical[k]}</span>
-      </div>
-    `).join("");
-
-  const curiositiesHTML = (place.curiosities || []).map(c => `<li>${c}</li>`).join("");
-
-  const warningHTML = practical.aviso
-    ? `<div class="warning-box"><strong>⚠ Importante:</strong> ${practical.aviso}</div>` : "";
+  const p = place.practical || {};
+  const keys = { entrada:"Entrada", horario:"Horario", precio:"Precio", tiempo:"Tiempo", transporte:"Transporte", tip:"Consejo", aviso:"Aviso" };
+  const practHTML = Object.entries(keys).filter(([k]) => p[k])
+    .map(([k, label]) => `<div class="practical-item"><span class="p-label">${label}</span><span class="p-value">${p[k]}</span></div>`).join("");
+  const curHTML = (place.curiosities || []).map(c => `<li>${c}</li>`).join("");
+  const warnHTML = p.aviso ? `<div class="warning-box"><strong>⚠ Importante:</strong> ${p.aviso}</div>` : "";
 
   document.getElementById("detail-content").innerHTML = `
     <div class="detail-header">
@@ -244,20 +240,93 @@ function showDetail(id) {
       <h2>${place.icon} ${place.name}</h2>
       <div class="detail-type">${place.type}</div>
     </div>
-    <div class="detail-section">
-      <h4>Descripcion</h4>
-      <p>${place.description}</p>
-    </div>
-    <div class="detail-section">
-      <h4>Curiosidades e historia</h4>
-      <ul class="curiosity-list">${curiositiesHTML}</ul>
-    </div>
-    <div class="detail-section">
-      <h4>Informacion practica</h4>
-      <div class="practical-grid">${practicalHTML}</div>
-      ${warningHTML}
-    </div>
+    <div class="detail-section"><h4>Descripcion</h4><p>${place.description}</p></div>
+    <div class="detail-section"><h4>Curiosidades e historia</h4><ul class="curiosity-list">${curHTML}</ul></div>
+    <div class="detail-section"><h4>Informacion practica</h4><div class="practical-grid">${practHTML}</div>${warnHTML}</div>
   `;
+}
+
+// ─── RESTAURANT LIST ──────────────────────────────────────────────────────
+function renderRestList(rests) {
+  const list = document.getElementById("rest-list");
+  list.innerHTML = "";
+  document.getElementById("rest-count").textContent =
+    `${rests.length} restaurante${rests.length !== 1 ? "s" : ""}`;
+
+  const order = ["cracovia", "varsovia", "gdansk"];
+  const grouped = {}; order.forEach(c => (grouped[c] = []));
+  rests.forEach(r => { if (grouped[r.city]) grouped[r.city].push(r); });
+
+  order.forEach(city => {
+    const group = grouped[city];
+    if (!group?.length) return;
+    const title = document.createElement("div");
+    title.className = "rest-group-title";
+    title.textContent = group[0].cityLabel.split(" · ")[0];
+    list.appendChild(title);
+    group.forEach(rest => {
+      const card = document.createElement("div");
+      card.className = "rest-card"; card.id = `rest-card-${rest.id}`;
+      card.innerHTML = `
+        <div class="rest-icon">${rest.icon}</div>
+        <div class="rest-info">
+          <h3>${rest.name}</h3>
+          <div class="rest-meta">
+            <span class="rest-district">${rest.cityLabel.split(" · ")[1] || ""}</span>
+            <span class="rest-type-tag">${rest.type.split(" · ")[0]}</span>
+          </div>
+        </div>
+        <div class="rest-price">${rest.price}</div>
+      `;
+      card.addEventListener("click", () => { flyTo(rest.lat, rest.lng, 15); showRestDetail(rest.id); });
+      list.appendChild(card);
+    });
+  });
+}
+
+function highlightRestCard(id) {
+  document.querySelectorAll(".rest-card").forEach(c => c.classList.remove("active"));
+  const card = document.getElementById(`rest-card-${id}`);
+  if (card) { card.classList.add("active"); card.scrollIntoView({ behavior: "smooth", block: "nearest" }); }
+}
+
+function showRestDetail(id) {
+  const rest = RESTAURANTS.find(r => r.id === id);
+  if (!rest) return;
+  if (activeRestCard !== id) { flyTo(rest.lat, rest.lng, 15); highlightRestCard(id); activeRestCard = id; }
+  if (activeSection !== "rest") switchSection("rest");
+  if (window.innerWidth < 768) setSheetState("state-full");
+
+  document.getElementById("rest-list").classList.add("hidden");
+  document.getElementById("rest-detail").classList.remove("hidden");
+  document.getElementById("panel-body").scrollTop = 0;
+
+  const p = rest.practical || {};
+  const keys = { direccion:"Dirección", horario:"Horario", precio:"Precio", reserva:"Reserva", tip:"Consejo", web:"Web" };
+  const practHTML = Object.entries(keys).filter(([k]) => p[k])
+    .map(([k, label]) => `<div class="practical-item"><span class="p-label">${label}</span><span class="p-value">${p[k]}</span></div>`).join("");
+  const orderHTML = (rest.order || []).map(o => `<li>${o}</li>`).join("");
+
+  document.getElementById("rest-detail-content").innerHTML = `
+    <div class="rest-detail-header">
+      <div class="rest-detail-city">${rest.cityLabel}</div>
+      <h2>${rest.icon} ${rest.name}</h2>
+      <div class="rest-detail-meta">
+        <span class="rest-detail-type">${rest.type}</span>
+        <span class="rest-detail-price">${rest.price}</span>
+      </div>
+    </div>
+    <div class="detail-section"><h4>Sobre el restaurante</h4><p>${rest.description}</p></div>
+    <div class="detail-section"><h4>Que pedir</h4><ul class="order-list">${orderHTML}</ul></div>
+    <div class="detail-section"><h4>Informacion practica</h4><div class="practical-grid">${practHTML}</div></div>
+    <div class="rest-warning">⚠ Verifica horarios y disponibilidad antes de ir — los restaurantes pueden cambiar. Busca el nombre en Google Maps para confirmar.</div>
+  `;
+}
+
+// ─── SHARED FLY TO ────────────────────────────────────────────────────────
+function flyTo(lat, lng, zoom) {
+  const z = window.innerWidth < 768 ? Math.min(zoom, 14) : zoom;
+  map.flyTo([lat, lng], z, { duration: 1.1 });
 }
 
 // ─── MAP FILTERS ──────────────────────────────────────────────────────────
@@ -268,17 +337,13 @@ function setupMapFilters() {
       document.querySelectorAll("#city-filters .filter-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
       activeFilter = btn.dataset.city;
-
       const filtered = activeFilter === "all" ? PLACES : PLACES.filter(p => p.city === activeFilter);
-      renderList(filtered);
-
+      renderPlaceList(filtered);
       if (activeFilter === "all") map.flyTo([52.0, 19.5], 6, { duration: 1 });
       else { const c = CITY_CENTERS[activeFilter]; if (c) map.flyTo(c, 13, { duration: 1 }); }
-
       document.getElementById("place-list").classList.remove("hidden");
       document.getElementById("place-detail").classList.add("hidden");
       activeCard = null;
-
       if (window.innerWidth < 768) setSheetState("state-list");
     });
   });
@@ -287,6 +352,53 @@ function setupMapFilters() {
     document.getElementById("place-list").classList.remove("hidden");
     document.getElementById("place-detail").classList.add("hidden");
     activeCard = null;
+    document.getElementById("panel-body").scrollTop = 0;
+    if (window.innerWidth < 768) setSheetState("state-list");
+  });
+}
+
+// ─── RESTAURANT FILTERS ───────────────────────────────────────────────────
+function buildRestFilters() {
+  const row = document.getElementById("rest-city-filters");
+  REST_CITY_FILTERS.forEach(f => {
+    const btn = document.createElement("button");
+    btn.className = "filter-btn" + (f.id === "all" ? " active" : "");
+    btn.dataset.city = f.id;
+    btn.textContent = f.label;
+    btn.addEventListener("click", e => {
+      e.stopPropagation();
+      row.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      activeRestFilter = f.id;
+      const filtered = activeRestFilter === "all" ? RESTAURANTS : RESTAURANTS.filter(r => r.city === activeRestFilter);
+      renderRestList(filtered);
+
+      // Sync map markers visibility
+      RESTAURANTS.forEach(r => {
+        const m = restMarkers[r.id];
+        if (!m) return;
+        if (activeRestFilter === "all" || r.city === activeRestFilter) m.addTo(map);
+        else map.removeLayer(m);
+      });
+
+      if (activeRestFilter !== "all") {
+        const c = CITY_CENTERS[activeRestFilter];
+        if (c) map.flyTo(c, 13, { duration: 1 });
+      } else {
+        map.flyTo([52.0, 19.5], 6, { duration: 1 });
+      }
+      document.getElementById("rest-list").classList.remove("hidden");
+      document.getElementById("rest-detail").classList.add("hidden");
+      activeRestCard = null;
+      if (window.innerWidth < 768) setSheetState("state-list");
+    });
+    row.appendChild(btn);
+  });
+
+  document.getElementById("rest-back-btn").addEventListener("click", () => {
+    document.getElementById("rest-list").classList.remove("hidden");
+    document.getElementById("rest-detail").classList.add("hidden");
+    activeRestCard = null;
     document.getElementById("panel-body").scrollTop = 0;
     if (window.innerWidth < 768) setSheetState("state-list");
   });
@@ -302,7 +414,7 @@ function buildDictFilters() {
     btn.textContent = cat.label;
     btn.addEventListener("click", e => {
       e.stopPropagation();
-      document.querySelectorAll("#dict-filters .filter-btn").forEach(b => b.classList.remove("dict-active"));
+      row.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("dict-active"));
       btn.classList.add("dict-active");
       activeDictCat = cat.id;
       renderDict();
@@ -315,23 +427,17 @@ function renderDict(query = "") {
   const list = document.getElementById("dict-list");
   list.innerHTML = "";
   const q = query.toLowerCase().trim();
-
   let entries = DICT;
   if (activeDictCat !== "all") entries = entries.filter(e => e.cat === activeDictCat);
   if (q) entries = entries.filter(e =>
-    e.es.toLowerCase().includes(q) ||
-    e.pl.toLowerCase().includes(q) ||
-    e.pron.toLowerCase().includes(q));
+    e.es.toLowerCase().includes(q) || e.pl.toLowerCase().includes(q) || e.pron.toLowerCase().includes(q));
 
   if (!entries.length) {
-    list.innerHTML = `<div class="dict-empty">Sin resultados para "${query}"</div>`;
-    return;
+    list.innerHTML = `<div class="dict-empty">Sin resultados para "${query}"</div>`; return;
   }
 
-  // Group by category only when showing all cats and no search
   const showGroups = activeDictCat === "all" && !q;
   let lastCat = null;
-
   entries.forEach(entry => {
     if (showGroups && entry.cat !== lastCat) {
       lastCat = entry.cat;
@@ -343,7 +449,6 @@ function renderDict(query = "") {
         list.appendChild(title);
       }
     }
-
     const card = document.createElement("div");
     card.className = "dict-card";
     card.innerHTML = `
@@ -382,9 +487,10 @@ function injectDesktopTabs() {
   tabBar.id = "desktop-tabs";
   tabBar.innerHTML = `
     <button class="desktop-tab active" data-section="map">🗺 Mapa</button>
+    <button class="desktop-tab" data-section="rest">🍽 Restaurantes</button>
     <button class="desktop-tab" data-section="dict">🇵🇱 Polaco</button>
   `;
-  panelTop.insertBefore(tabBar, panelTop.firstChild.nextSibling); // after drag-handle
+  panelTop.insertBefore(tabBar, panelTop.children[1]);
   tabBar.querySelectorAll(".desktop-tab").forEach(btn => {
     btn.addEventListener("click", () => switchSection(btn.dataset.section));
   });
@@ -393,14 +499,17 @@ function injectDesktopTabs() {
 // ─── INIT ─────────────────────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
   initMap();
-  PLACES.forEach(addMarker);
-  renderList(PLACES);
+  PLACES.forEach(addPlaceMarker);
+  RESTAURANTS.forEach(addRestMarker);
+  renderPlaceList(PLACES);
+  renderRestList(RESTAURANTS);
   setupMapFilters();
-  setupDrag();
+  buildRestFilters();
   buildDictFilters();
   renderDict();
   setupDictSearch();
   setupNav();
+  setupDrag();
   injectDesktopTabs();
   setSheetState("state-peek");
 });

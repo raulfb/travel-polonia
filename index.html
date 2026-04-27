@@ -13,17 +13,14 @@
 <body>
   <div id="app">
 
-    <!-- Mapa (fondo completo, siempre presente) -->
     <div id="map"></div>
 
-    <!-- Panel principal: bottom-sheet en móvil, sidebar en desktop -->
     <div id="panel">
 
-      <!-- Cabecera del panel (parte visible en estado peek) -->
       <div id="panel-top">
         <div id="drag-handle"></div>
 
-        <!-- Cabecera sección MAPA -->
+        <!-- Cabecera: MAPA -->
         <div id="top-map" class="section-top">
           <div id="panel-title-row">
             <div id="panel-title">Polonia <span>IIGM</span></div>
@@ -38,7 +35,16 @@
           </div>
         </div>
 
-        <!-- Cabecera sección POLACO -->
+        <!-- Cabecera: RESTAURANTES -->
+        <div id="top-rest" class="section-top hidden">
+          <div id="panel-title-row-rest">
+            <div class="panel-title-alt" style="color:#e67e22">Españoles & Gallegos</div>
+            <div id="rest-count" class="panel-subtitle-alt">12 restaurantes</div>
+          </div>
+          <div id="rest-city-filters" class="filter-row"></div>
+        </div>
+
+        <!-- Cabecera: POLACO -->
         <div id="top-dict" class="section-top hidden">
           <div id="panel-title-row-dict">
             <div class="panel-title-alt">Polaco básico</div>
@@ -51,10 +57,10 @@
         </div>
       </div>
 
-      <!-- Cuerpo desplazable -->
+      <!-- Cuerpo -->
       <div id="panel-body">
 
-        <!-- SECCIÓN MAPA -->
+        <!-- Sección: MAPA -->
         <div id="section-map">
           <div id="place-list"></div>
           <div id="place-detail" class="hidden">
@@ -68,7 +74,21 @@
           </div>
         </div>
 
-        <!-- SECCIÓN POLACO -->
+        <!-- Sección: RESTAURANTES -->
+        <div id="section-rest" class="hidden">
+          <div id="rest-list"></div>
+          <div id="rest-detail" class="hidden">
+            <button id="rest-back-btn">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M10 3L5 8L10 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Volver a restaurantes
+            </button>
+            <div id="rest-detail-content"></div>
+          </div>
+        </div>
+
+        <!-- Sección: POLACO -->
         <div id="section-dict" class="hidden">
           <div id="dict-list"></div>
         </div>
@@ -85,6 +105,13 @@
         </svg>
         <span class="nav-label">Mapa</span>
       </button>
+      <button class="nav-btn" data-section="rest">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>
+          <line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>
+        </svg>
+        <span class="nav-label">Restaurantes</span>
+      </button>
       <button class="nav-btn" data-section="dict">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
@@ -97,6 +124,7 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="data.js"></script>
+  <script src="restaurants.js"></script>
   <script src="dict.js"></script>
   <script src="app.js"></script>
 </body>

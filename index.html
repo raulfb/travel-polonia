@@ -2,19 +2,32 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Polonia IIGM — Guia de Viaje</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#1a1a1a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Polonia IIGM</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div id="app">
-    <!-- SIDEBAR -->
-    <aside id="sidebar">
-      <div id="sidebar-header">
-        <h1>Polonia <span class="subtitle">IIGM</span></h1>
-        <p class="tagline">Lugares, historia y curiosidades</p>
 
+    <!-- Mapa: fondo completo -->
+    <div id="map"></div>
+
+    <!-- Panel: bottom-sheet en móvil, sidebar en desktop -->
+    <div id="panel">
+
+      <!-- Cabecera del panel (siempre visible en móvil = parte que asoma) -->
+      <div id="panel-top">
+        <div id="drag-handle"></div>
+        <div id="panel-title-row">
+          <div id="panel-title">
+            Polonia <span>IIGM</span>
+          </div>
+          <div id="place-count">12 lugares</div>
+        </div>
         <div id="city-filters">
           <button class="filter-btn active" data-city="all">Todos</button>
           <button class="filter-btn" data-city="auschwitz">Auschwitz</button>
@@ -24,16 +37,22 @@
         </div>
       </div>
 
-      <div id="place-list"></div>
+      <!-- Cuerpo desplazable -->
+      <div id="panel-body">
+        <div id="place-list"></div>
 
-      <div id="place-detail" class="hidden">
-        <button id="back-btn">← Volver</button>
-        <div id="detail-content"></div>
+        <div id="place-detail" class="hidden">
+          <button id="back-btn">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M10 3L5 8L10 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Volver a la lista
+          </button>
+          <div id="detail-content"></div>
+        </div>
       </div>
-    </aside>
 
-    <!-- MAP -->
-    <div id="map"></div>
+    </div>
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>

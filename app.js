@@ -323,9 +323,40 @@ function showRestDetail(id) {
     <div class="detail-section"><h4>Sobre el restaurante</h4><p>${rest.description}</p></div>
     <div class="detail-section"><h4>Que pedir</h4><ul class="order-list">${orderHTML}</ul></div>
     <div class="detail-section"><h4>Informacion practica</h4><div class="practical-grid">${practHTML}</div></div>
-    ${directionsBtn(rest.lat, rest.lng, rest.name)}
-    <div class="rest-warning">⚠ Verifica horarios y disponibilidad antes de ir — los restaurantes pueden cambiar. Busca el nombre en Google Maps para confirmar.</div>
+    ${restExternalLinks(rest)}
+    <div class="rest-warning">⚠ Verifica horarios y disponibilidad antes de ir — los restaurantes pueden cambiar.</div>
   `;
+}
+
+// ─── EXTERNAL LINKS ───────────────────────────────────────────────────────
+function restExternalLinks(rest) {
+  const { lat, lng, name, links = {} } = rest;
+  const btns = [];
+
+  btns.push(directionsBtn(lat, lng, name));
+
+  if (links.ta) {
+    btns.push(`<a class="ext-link-btn ext-ta" href="${links.ta}" target="_blank" rel="noopener">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/>
+        <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      </svg>
+      TripAdvisor
+    </a>`);
+  }
+
+  if (links.web) {
+    const domain = new URL(links.web).hostname.replace("www.", "");
+    btns.push(`<a class="ext-link-btn ext-web" href="${links.web}" target="_blank" rel="noopener">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
+        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+      </svg>
+      ${domain}
+    </a>`);
+  }
+
+  return `<div class="ext-links-row">${btns.join("")}</div>`;
 }
 
 // ─── DIRECTIONS BUTTON ────────────────────────────────────────────────────

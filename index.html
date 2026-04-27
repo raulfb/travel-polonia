@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Polonia IIGM — Guia de Viaje</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- SIDEBAR -->
+    <aside id="sidebar">
+      <div id="sidebar-header">
+        <h1>Polonia <span class="subtitle">IIGM</span></h1>
+        <p class="tagline">Lugares, historia y curiosidades</p>
+
+        <div id="city-filters">
+          <button class="filter-btn active" data-city="all">Todos</button>
+          <button class="filter-btn" data-city="auschwitz">Auschwitz</button>
+          <button class="filter-btn" data-city="cracovia">Cracovia</button>
+          <button class="filter-btn" data-city="varsovia">Varsovia</button>
+          <button class="filter-btn" data-city="gdansk">Gdansk</button>
+        </div>
+      </div>
+
+      <div id="place-list"></div>
+
+      <div id="place-detail" class="hidden">
+        <button id="back-btn">← Volver</button>
+        <div id="detail-content"></div>
+      </div>
+    </aside>
+
+    <!-- MAP -->
+    <div id="map"></div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

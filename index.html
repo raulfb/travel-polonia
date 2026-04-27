@@ -44,6 +44,14 @@
           <div id="rest-city-filters" class="filter-row"></div>
         </div>
 
+        <!-- Cabecera: CAMBIO -->
+        <div id="top-curr" class="section-top hidden">
+          <div id="panel-title-row-curr">
+            <div class="panel-title-alt" style="color:#27ae60">Cambio de divisas</div>
+            <div class="panel-subtitle-alt">Zloty polaco (PLN) ↔ Euro (EUR)</div>
+          </div>
+        </div>
+
         <!-- Cabecera: POLACO -->
         <div id="top-dict" class="section-top hidden">
           <div id="panel-title-row-dict">
@@ -93,6 +101,48 @@
           <div id="dict-list"></div>
         </div>
 
+        <!-- Sección: CAMBIO -->
+        <div id="section-curr" class="hidden">
+          <div id="curr-container">
+
+            <div id="curr-direction-row">
+              <button class="dir-btn active" data-dir="pln2eur">
+                <span class="dir-flag">🇵🇱</span> PLN → EUR <span class="dir-flag">🇪🇺</span>
+              </button>
+              <button class="dir-btn" data-dir="eur2pln">
+                <span class="dir-flag">🇪🇺</span> EUR → PLN <span class="dir-flag">🇵🇱</span>
+              </button>
+            </div>
+
+            <div id="curr-input-block">
+              <div id="curr-from-label">Pagas en Polonia</div>
+              <div id="curr-input-row">
+                <span id="curr-input-symbol">zł</span>
+                <input id="curr-input" type="number" inputmode="decimal" placeholder="0" min="0" />
+              </div>
+            </div>
+
+            <div id="curr-arrow">↓</div>
+
+            <div id="curr-result-block">
+              <div id="curr-to-label">Equivale a</div>
+              <div id="curr-result">€ —</div>
+            </div>
+
+            <div id="curr-quick-label">Cantidades rápidas</div>
+            <div id="curr-quick-btns"></div>
+
+            <div id="curr-rate-block">
+              <div id="curr-rate-text">1 EUR = <span id="curr-rate-val">4.25</span> PLN</div>
+              <div id="curr-rate-meta">
+                <span id="curr-rate-time">Tipo por defecto</span>
+                <button id="curr-refresh-btn">↻ Actualizar</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -111,6 +161,13 @@
           <line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>
         </svg>
         <span class="nav-label">Restaurantes</span>
+      </button>
+      <button class="nav-btn" data-section="curr">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><line x1="12" y1="6" x2="12" y2="8"/><line x1="12" y1="16" x2="12" y2="18"/>
+        </svg>
+        <span class="nav-label">Cambio</span>
       </button>
       <button class="nav-btn" data-section="dict">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

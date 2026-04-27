@@ -412,6 +412,52 @@ html, body {
   background: rgba(39, 174, 96, 0.25);
 }
 
+/* External links row (directions + TripAdvisor + web) */
+.ext-links-row {
+  display: flex;
+  gap: 8px;
+  margin: 4px 0 8px;
+  flex-wrap: wrap;
+}
+
+.ext-links-row .directions-btn {
+  flex: 1 1 100%;
+  margin: 0;
+}
+
+.ext-link-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px 10px;
+  border-radius: 10px;
+  font-family: Arial, sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.ext-ta {
+  background: rgba(52, 211, 153, 0.12);
+  border: 1px solid rgba(52, 211, 153, 0.35);
+  color: #34d399;
+}
+
+.ext-ta:active { background: rgba(52, 211, 153, 0.25); }
+
+.ext-web {
+  background: rgba(96, 165, 250, 0.12);
+  border: 1px solid rgba(96, 165, 250, 0.35);
+  color: #60a5fa;
+}
+
+.ext-web:active { background: rgba(96, 165, 250, 0.25); }
+
 /* ─── RESTAURANT SECTION ─────────────────── */
 #section-rest.hidden { display: none; }
 

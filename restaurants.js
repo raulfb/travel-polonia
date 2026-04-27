@@ -34,7 +34,10 @@ const RESTAURANTS = [
       horario: "Dom–Jue 12:00–22:00 · Vie–Sáb 12:00–22:30",
       precio: "€€ · ~70–110 PLN por persona",
       reserva: "Imprescindible reservar, especialmente fines de semana",
-      web: "euskadi.pl",
+    },
+    links: {
+      web: "https://www.euskadi.pl/",
+      ta:  "https://www.tripadvisor.com/Restaurant_Review-g274772-d12209748-Reviews-Euskadi_Kuchnia_Baskijska-Krakow_Lesser_Poland_Province_Southern_Poland.html",
     }
   },
   {
@@ -60,6 +63,10 @@ const RESTAURANTS = [
       horario: "Lun 12:00–21:00 · Mar–Sáb 12:00–23:00 · Dom 12:00–21:00",
       precio: "€€ · ~60–90 PLN por persona",
       reserva: "Recomendable en fin de semana (Zjedz.my)",
+    },
+    links: {
+      web: null,
+      ta:  "https://www.tripadvisor.com/Restaurant_Review-g274772-d28674013-Reviews-Arriva_Krakow-Krakow_Lesser_Poland_Province_Southern_Poland.html",
     }
   },
   {
@@ -85,6 +92,10 @@ const RESTAURANTS = [
       horario: "Consultar en Google Maps (horario variable)",
       precio: "€€ · ~100–120 PLN por persona",
       tip: "La ubicación en el Casco Antiguo lo hace muy accesible combinando con el Mercado Central",
+    },
+    links: {
+      web: "https://alejostapas.pl/",
+      ta:  "https://www.tripadvisor.com/Restaurant_Review-g274772-d23822091-Reviews-Alejo_s_Tapas_Grill_Wine-Krakow_Lesser_Poland_Province_Southern_Poland.html",
     }
   },
   {
@@ -110,6 +121,10 @@ const RESTAURANTS = [
       horario: "Mie–Jue 16:00–21:00 · Vie–Sáb 12:00–22:00 · Dom 12:00–20:00 · Lun–Mar CERRADO",
       precio: "€€–€€€ · ~160–180 PLN por persona",
       tip: "Ambiente de tarde-noche, más bar de vinos que restaurante. Ideal para una copa larga con tapas",
+    },
+    links: {
+      web: null,
+      ta:  "https://www.tripadvisor.com/Restaurant_Review-g274772-d17513212-Reviews-Manana-Krakow_Lesser_Poland_Province_Southern_Poland.html",
     }
   },
 
@@ -137,6 +152,10 @@ const RESTAURANTS = [
       horario: "Lun 12:00–21:00 · Mar–Vie 13:00–00:00 · Sáb–Dom 16:00–00:00",
       precio: "€€ · ~90–130 PLN por persona",
       reserva: "Muy recomendable en fin de semana",
+    },
+    links: {
+      web: "https://bilbao.com.pl/",
+      ta:  "https://www.tripadvisor.com/Restaurant_Review-g274856-d24084550-Reviews-Bilbao_Pintxos_Wine_Tapas-Warsaw_Mazovia_Province_Central_Poland.html",
     }
   },
   {
@@ -164,6 +183,10 @@ const RESTAURANTS = [
       precio: "€€–€€€ · ~120–160 PLN por persona",
       reserva: "Recomendable. Reservas: +48 666 555 765",
       tip: "El complejo Elektrownia Powiśle merece la visita por sí solo — ideal para una noche completa",
+    },
+    links: {
+      web: "https://trestoros.pl/",
+      ta:  "https://www.tripadvisor.com/Restaurant_Review-g274856-d21178461-Reviews-Tres_Toros-Warsaw_Mazovia_Province_Central_Poland.html",
     }
   },
   {
@@ -190,6 +213,10 @@ const RESTAURANTS = [
       horario: "Consultar en Google Maps",
       precio: "€ · ~60–80 PLN por persona",
       tip: "El más económico con cocina auténtica española. Perfecto para comer bien sin gastar mucho",
+    },
+    links: {
+      web: "https://tapasgastrobar.pl/",
+      ta:  "https://www.tripadvisor.com/Restaurant_Review-g274856-d28144742-Reviews-Pablo_s_Tapas_Gastrobar-Warsaw_Mazovia_Province_Central_Poland.html",
     }
   },
   {
@@ -216,6 +243,10 @@ const RESTAURANTS = [
       horario: "Lun 11:00–21:00 · Mar–Sáb 11:00–23:00",
       precio: "€–€€ · ~60–90 PLN por persona",
       tip: "Ideal para tapear y tomar algo, no tanto para cena formal. Ambiente muy relajado",
+    },
+    links: {
+      web: "https://solysombra.pl/",
+      ta:  "https://www.tripadvisor.com/Restaurant_Review-g274856-d3775725-Reviews-Sol_y_Sombra-Warsaw_Mazovia_Province_Central_Poland.html",
     }
   },
   {
@@ -241,6 +272,10 @@ const RESTAURANTS = [
       horario: "Mar–Dom 12:00–22:00",
       precio: "€€ · ~80–120 PLN por persona",
       tip: "También venden productos para llevar a casa. Imprescindible si eres fan del jamón ibérico",
+    },
+    links: {
+      web: null,
+      ta:  "https://www.tripadvisor.com/Restaurant_Review-g274856-d25186588-Reviews-La_Tienda_Espanola-Warsaw_Mazovia_Province_Central_Poland.html",
     }
   },
 
@@ -269,7 +304,10 @@ const RESTAURANTS = [
       horario: "Lun–Jue 11:00–23:00 · Vie–Sáb 11:00–00:00 · Dom 11:00–22:00",
       precio: "€€ · Tapas 24–49 PLN (~5–11€)",
       reserva: "Muy recomendable, especialmente fines de semana",
-      web: "horadeespana.pl",
+    },
+    links: {
+      web: "https://horadeespana.pl/",
+      ta:  "https://www.tripadvisor.com/Restaurant_Review-g274725-d23444065-Reviews-Hora_De_Espana-Gdansk_Pomerania_Province_Northern_Poland.html",
     }
   },
   {
@@ -295,6 +333,10 @@ const RESTAURANTS = [
       horario: "Lun–Jue 12:00–23:00 · Vie–Sáb 12:00–00:00 · Dom 12:00–22:00",
       precio: "€ · ~50–70 PLN por persona (el más económico de Gdansk)",
       tip: "Está algo escondido — búscalo activamente, merece la pena. Perfecto para familias",
+    },
+    links: {
+      web: "https://patioespanol.pl/",
+      ta:  "https://www.tripadvisor.com/Restaurant_Review-g274725-d4476235-Reviews-Restauracja_Patio_Espanol-Gdansk_Pomerania_Province_Northern_Poland.html",
     }
   },
   {
@@ -321,6 +363,10 @@ const RESTAURANTS = [
       horario: "Diario desde mediodía",
       precio: "€€ · ~70–100 PLN por persona",
       tip: "Combínalo con la visita a la Basílica de Santa María. La calle Piwna es peatonal y muy animada por las noches",
+    },
+    links: {
+      web: "https://holatapas.pl/",
+      ta:  "https://www.tripadvisor.com/Restaurant_Review-g274725-d20257332-Reviews-Hola_Tapas-Gdansk_Pomerania_Province_Northern_Poland.html",
     }
   },
 ];

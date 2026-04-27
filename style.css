@@ -387,6 +387,31 @@ html, body {
 
 .warning-box strong { color: var(--red-light); }
 
+.directions-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px;
+  margin: 4px 0 8px;
+  background: rgba(39, 174, 96, 0.12);
+  border: 1px solid rgba(39, 174, 96, 0.4);
+  border-radius: 10px;
+  color: #2ecc71;
+  font-family: Arial, sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.directions-btn:active {
+  background: rgba(39, 174, 96, 0.25);
+}
+
 /* ─── RESTAURANT SECTION ─────────────────── */
 #section-rest.hidden { display: none; }
 

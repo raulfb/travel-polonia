@@ -246,6 +246,7 @@ function showPlaceDetail(id) {
     <div class="detail-section"><h4>Descripcion</h4><p>${place.description}</p></div>
     <div class="detail-section"><h4>Curiosidades e historia</h4><ul class="curiosity-list">${curHTML}</ul></div>
     <div class="detail-section"><h4>Informacion practica</h4><div class="practical-grid">${practHTML}</div>${warnHTML}</div>
+    ${directionsBtn(place.lat, place.lng, place.name)}
   `;
 }
 
@@ -322,8 +323,20 @@ function showRestDetail(id) {
     <div class="detail-section"><h4>Sobre el restaurante</h4><p>${rest.description}</p></div>
     <div class="detail-section"><h4>Que pedir</h4><ul class="order-list">${orderHTML}</ul></div>
     <div class="detail-section"><h4>Informacion practica</h4><div class="practical-grid">${practHTML}</div></div>
+    ${directionsBtn(rest.lat, rest.lng, rest.name)}
     <div class="rest-warning">⚠ Verifica horarios y disponibilidad antes de ir — los restaurantes pueden cambiar. Busca el nombre en Google Maps para confirmar.</div>
   `;
+}
+
+// ─── DIRECTIONS BUTTON ────────────────────────────────────────────────────
+function directionsBtn(lat, lng, name) {
+  const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&destination_place_name=${encodeURIComponent(name)}`;
+  return `<a class="directions-btn" href="${url}" target="_blank" rel="noopener">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="3 11 22 2 13 21 11 13 3 11"/>
+    </svg>
+    Cómo llegar
+  </a>`;
 }
 
 // ─── SHARED FLY TO ────────────────────────────────────────────────────────

@@ -13,50 +13,91 @@
 <body>
   <div id="app">
 
-    <!-- Mapa: fondo completo -->
+    <!-- Mapa (fondo completo, siempre presente) -->
     <div id="map"></div>
 
-    <!-- Panel: bottom-sheet en móvil, sidebar en desktop -->
+    <!-- Panel principal: bottom-sheet en móvil, sidebar en desktop -->
     <div id="panel">
 
-      <!-- Cabecera del panel (siempre visible en móvil = parte que asoma) -->
+      <!-- Cabecera del panel (parte visible en estado peek) -->
       <div id="panel-top">
         <div id="drag-handle"></div>
-        <div id="panel-title-row">
-          <div id="panel-title">
-            Polonia <span>IIGM</span>
+
+        <!-- Cabecera sección MAPA -->
+        <div id="top-map" class="section-top">
+          <div id="panel-title-row">
+            <div id="panel-title">Polonia <span>IIGM</span></div>
+            <div id="place-count">12 lugares</div>
           </div>
-          <div id="place-count">12 lugares</div>
+          <div id="city-filters" class="filter-row">
+            <button class="filter-btn active" data-city="all">Todos</button>
+            <button class="filter-btn" data-city="auschwitz">Auschwitz</button>
+            <button class="filter-btn" data-city="cracovia">Cracovia</button>
+            <button class="filter-btn" data-city="varsovia">Varsovia</button>
+            <button class="filter-btn" data-city="gdansk">Gdansk</button>
+          </div>
         </div>
-        <div id="city-filters">
-          <button class="filter-btn active" data-city="all">Todos</button>
-          <button class="filter-btn" data-city="auschwitz">Auschwitz</button>
-          <button class="filter-btn" data-city="cracovia">Cracovia</button>
-          <button class="filter-btn" data-city="varsovia">Varsovia</button>
-          <button class="filter-btn" data-city="gdansk">Gdansk</button>
+
+        <!-- Cabecera sección POLACO -->
+        <div id="top-dict" class="section-top hidden">
+          <div id="panel-title-row-dict">
+            <div class="panel-title-alt">Polaco básico</div>
+            <div class="panel-subtitle-alt">Pronunciación para hispanohablantes</div>
+          </div>
+          <div id="dict-search-row">
+            <input id="dict-search" type="search" placeholder="Buscar palabra..." autocomplete="off" />
+          </div>
+          <div id="dict-filters" class="filter-row"></div>
         </div>
       </div>
 
       <!-- Cuerpo desplazable -->
       <div id="panel-body">
-        <div id="place-list"></div>
 
-        <div id="place-detail" class="hidden">
-          <button id="back-btn">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M10 3L5 8L10 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            Volver a la lista
-          </button>
-          <div id="detail-content"></div>
+        <!-- SECCIÓN MAPA -->
+        <div id="section-map">
+          <div id="place-list"></div>
+          <div id="place-detail" class="hidden">
+            <button id="back-btn">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M10 3L5 8L10 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Volver a la lista
+            </button>
+            <div id="detail-content"></div>
+          </div>
         </div>
-      </div>
 
+        <!-- SECCIÓN POLACO -->
+        <div id="section-dict" class="hidden">
+          <div id="dict-list"></div>
+        </div>
+
+      </div>
     </div>
+
+    <!-- Navegación inferior -->
+    <nav id="app-nav">
+      <button class="nav-btn active" data-section="map">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/>
+          <line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/>
+        </svg>
+        <span class="nav-label">Mapa</span>
+      </button>
+      <button class="nav-btn" data-section="dict">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+        </svg>
+        <span class="nav-label">Polaco</span>
+      </button>
+    </nav>
+
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="data.js"></script>
+  <script src="dict.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

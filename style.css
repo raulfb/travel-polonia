@@ -569,6 +569,218 @@ html, body {
   line-height: 1.5;
 }
 
+/* ─── CURRENCY SECTION ───────────────────── */
+#section-curr.hidden { display: none; }
+
+#curr-container {
+  padding: 24px 18px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+#curr-direction-row {
+  display: flex;
+  gap: 8px;
+}
+
+.dir-btn {
+  flex: 1;
+  padding: 12px 8px;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--muted);
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: Arial, sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  transition: all 0.15s;
+  line-height: 1.4;
+}
+
+.dir-btn:active { opacity: 0.7; }
+
+.dir-btn.active {
+  background: rgba(39, 174, 96, 0.15);
+  border-color: #27ae60;
+  color: #2ecc71;
+}
+
+.dir-flag { font-size: 1rem; }
+
+/* Input block */
+#curr-input-block {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px 18px;
+}
+
+#curr-from-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--muted);
+  font-family: Arial, sans-serif;
+  margin-bottom: 10px;
+}
+
+#curr-input-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#curr-input-symbol {
+  font-size: 2rem;
+  color: var(--muted);
+  font-family: Arial, sans-serif;
+  font-weight: 700;
+  min-width: 36px;
+}
+
+#curr-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 2.8rem;
+  font-family: Arial, sans-serif;
+  font-weight: 700;
+  color: var(--white);
+  width: 100%;
+  -moz-appearance: textfield;
+}
+
+#curr-input::-webkit-outer-spin-button,
+#curr-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+/* Arrow */
+#curr-arrow {
+  text-align: center;
+  font-size: 1.8rem;
+  color: #27ae60;
+  line-height: 1;
+  margin: -8px 0;
+}
+
+/* Result block */
+#curr-result-block {
+  background: rgba(39, 174, 96, 0.08);
+  border: 1px solid rgba(39, 174, 96, 0.3);
+  border-radius: 14px;
+  padding: 16px 18px;
+}
+
+#curr-to-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #27ae60;
+  font-family: Arial, sans-serif;
+  margin-bottom: 8px;
+}
+
+#curr-result {
+  font-size: 2.8rem;
+  font-family: Arial, sans-serif;
+  font-weight: 700;
+  color: #2ecc71;
+  line-height: 1.2;
+}
+
+/* Quick buttons */
+#curr-quick-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--muted);
+  font-family: Arial, sans-serif;
+}
+
+#curr-quick-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.quick-btn {
+  padding: 10px 16px;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text);
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: Arial, sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  min-height: 42px;
+  transition: background 0.12s;
+}
+
+.quick-btn:active {
+  background: rgba(39, 174, 96, 0.2);
+  border-color: #27ae60;
+  color: #2ecc71;
+}
+
+/* Rate info */
+#curr-rate-block {
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+
+#curr-rate-text {
+  font-size: 0.9rem;
+  color: var(--text);
+  font-family: Arial, sans-serif;
+  margin-bottom: 8px;
+}
+
+#curr-rate-val {
+  font-weight: 700;
+  color: var(--white);
+}
+
+#curr-rate-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+#curr-rate-time {
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-family: Arial, sans-serif;
+  font-style: italic;
+}
+
+#curr-refresh-btn {
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--muted);
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: Arial, sans-serif;
+  font-size: 0.75rem;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+#curr-refresh-btn:active {
+  border-color: #27ae60;
+  color: #2ecc71;
+}
+
+#curr-refresh-btn.loading {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
 /* ─── DICTIONARY SECTION ──────────────────── */
 #dict-list {
   padding: 8px 0 40px;

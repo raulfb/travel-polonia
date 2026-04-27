@@ -6,6 +6,13 @@ let activeCard = null, activeRestCard = null;
 let sheetState = "state-peek";
 let activeSection = "map";
 
+// Currency state
+let eurPln = 4.25;
+let convDir = "pln2eur";
+
+const PLN_QUICK = [10, 20, 50, 100, 200, 500];
+const EUR_QUICK = [5, 10, 20, 50, 100, 200];
+
 const STATES = ["state-peek", "state-list", "state-full"];
 
 // ─── SECTION SWITCHING ────────────────────────────────────────────────────
@@ -15,13 +22,10 @@ function switchSection(section) {
   document.querySelectorAll(".nav-btn, .desktop-tab").forEach(b =>
     b.classList.toggle("active", b.dataset.section === section));
 
-  document.getElementById("top-map").classList.toggle("hidden",  section !== "map");
-  document.getElementById("top-rest").classList.toggle("hidden", section !== "rest");
-  document.getElementById("top-dict").classList.toggle("hidden", section !== "dict");
-
-  document.getElementById("section-map").classList.toggle("hidden",  section !== "map");
-  document.getElementById("section-rest").classList.toggle("hidden", section !== "rest");
-  document.getElementById("section-dict").classList.toggle("hidden", section !== "dict");
+  ["map","rest","curr","dict"].forEach(s => {
+    document.getElementById(`top-${s}`)?.classList.toggle("hidden", s !== section);
+    document.getElementById(`section-${s}`)?.classList.toggle("hidden", s !== section);
+  });
 
   // Map markers visibility
   Object.values(placeMarkers).forEach(m =>
@@ -29,14 +33,13 @@ function switchSection(section) {
   Object.values(restMarkers).forEach(m =>
     section === "rest" ? m.addTo(map) : map.removeLayer(m));
 
-  const dictOrRest = section === "dict" || section === "rest";
-  document.getElementById("panel-top").style.cursor = dictOrRest ? "default" : "";
+  const noMap = section === "dict" || section === "rest" || section === "curr";
+  document.getElementById("panel-top").style.cursor = noMap ? "default" : "";
 
   if (window.innerWidth < 768) {
-    setSheetState(dictOrRest ? "state-full" : "state-peek");
+    setSheetState(noMap ? "state-full" : "state-peek");
   }
 
-  // Fly map to appropriate view
   if (section === "map")  map.flyTo([52.0, 19.5], 6, { duration: 1 });
   if (section === "rest") map.flyTo([52.0, 19.5], 6, { duration: 1 });
 }
@@ -472,6 +475,108 @@ function setupDictSearch() {
   });
 }
 
+// ─── CURRENCY CONVERTER ───────────────────────────────────────────────────
+function initCurrency() {
+  // Load cached rate from localStorage
+  const cached = localStorage.getItem("plneur_rate");
+  const cachedTime = localStorage.getItem("plneur_time");
+  if (cached) {
+    eurPln = parseFloat(cached);
+    document.getElementById("curr-rate-val").textContent = eurPln.toFixed(4);
+    if (cachedTime) {
+      const mins = Math.round((Date.now() - parseInt(cachedTime)) / 60000);
+      const label = mins < 60
+        ? `Hace ${mins} min${mins !== 1 ? "s" : ""}`
+        : `Hace ${Math.round(mins / 60)}h`;
+      document.getElementById("curr-rate-time").textContent = label;
+    }
+  }
+
+  buildQuickBtns();
+  setupDirectionBtns();
+  document.getElementById("curr-input").addEventListener("input", convert);
+  document.getElementById("curr-refresh-btn").addEventListener("click", () => fetchRate(true));
+
+  // Silently try to fetch fresh rate on load
+  fetchRate(false);
+}
+
+function fetchRate(showFeedback) {
+  const btn = document.getElementById("curr-refresh-btn");
+  if (showFeedback) { btn.textContent = "↻ Actualizando…"; btn.classList.add("loading"); }
+
+  fetch("https://api.frankfurter.app/latest?from=EUR&to=PLN")
+    .then(r => r.json())
+    .then(data => {
+      if (data.rates?.PLN) {
+        eurPln = data.rates.PLN;
+        localStorage.setItem("plneur_rate", eurPln);
+        localStorage.setItem("plneur_time", Date.now());
+        document.getElementById("curr-rate-val").textContent = eurPln.toFixed(4);
+        document.getElementById("curr-rate-time").textContent = "Actualizado ahora";
+        convert();
+      }
+    })
+    .catch(() => {
+      if (showFeedback) document.getElementById("curr-rate-time").textContent = "Sin conexión — tipo almacenado";
+    })
+    .finally(() => {
+      btn.textContent = "↻ Actualizar";
+      btn.classList.remove("loading");
+    });
+}
+
+function convert() {
+  const raw = parseFloat(document.getElementById("curr-input").value);
+  if (isNaN(raw) || raw === 0) {
+    document.getElementById("curr-result").textContent = convDir === "pln2eur" ? "€ —" : "— zł";
+    return;
+  }
+  if (convDir === "pln2eur") {
+    const eur = raw / eurPln;
+    document.getElementById("curr-result").textContent =
+      `€ ${eur.toFixed(2).replace(".", ",")}`;
+  } else {
+    const pln = raw * eurPln;
+    document.getElementById("curr-result").textContent =
+      `${pln.toFixed(2).replace(".", ",")} zł`;
+  }
+}
+
+function buildQuickBtns() {
+  const row = document.getElementById("curr-quick-btns");
+  row.innerHTML = "";
+  const amounts = convDir === "pln2eur" ? PLN_QUICK : EUR_QUICK;
+  const sym = convDir === "pln2eur" ? "zł" : "€";
+  amounts.forEach(amt => {
+    const btn = document.createElement("button");
+    btn.className = "quick-btn";
+    btn.textContent = `${amt} ${sym}`;
+    btn.addEventListener("click", () => {
+      document.getElementById("curr-input").value = amt;
+      convert();
+    });
+    row.appendChild(btn);
+  });
+}
+
+function setupDirectionBtns() {
+  document.querySelectorAll(".dir-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".dir-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      convDir = btn.dataset.dir;
+
+      const isP2E = convDir === "pln2eur";
+      document.getElementById("curr-input-symbol").textContent = isP2E ? "zł" : "€";
+      document.getElementById("curr-from-label").textContent = isP2E ? "Pagas en Polonia" : "Pagas en euros";
+      document.getElementById("curr-input").value = "";
+      document.getElementById("curr-result").textContent = isP2E ? "€ —" : "— zł";
+      buildQuickBtns();
+    });
+  });
+}
+
 // ─── BOTTOM NAV ───────────────────────────────────────────────────────────
 function setupNav() {
   document.querySelectorAll(".nav-btn").forEach(btn => {
@@ -488,6 +593,7 @@ function injectDesktopTabs() {
   tabBar.innerHTML = `
     <button class="desktop-tab active" data-section="map">🗺 Mapa</button>
     <button class="desktop-tab" data-section="rest">🍽 Restaurantes</button>
+    <button class="desktop-tab" data-section="curr">💶 Cambio</button>
     <button class="desktop-tab" data-section="dict">🇵🇱 Polaco</button>
   `;
   panelTop.insertBefore(tabBar, panelTop.children[1]);
@@ -511,5 +617,6 @@ document.addEventListener("DOMContentLoaded", () => {
   setupNav();
   setupDrag();
   injectDesktopTabs();
+  initCurrency();
   setSheetState("state-peek");
 });
